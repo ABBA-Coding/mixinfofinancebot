@@ -11,12 +11,15 @@ import datetime
 @dp.channel_post_handler(lambda message: message.text in ['SendPostNotification'], state='*')
 async def bot_start(message: types.Message, state: FSMContext):
     users = await get_users()
-    if datetime.datetime.now().hour == 5:
-        asks =  await get_client_pay()
+    if datetime.datetime.now().hour == 20:
+        asks = await get_client_pay()
         for user in users:
-            await bot.send_message(chat_id=user.user_id, text=asks)
-    elif datetime.datetime.now().hour == 14:
-        asks =  await get_client_pay2()
+            try:
+                await bot.send_message(chat_id=user.user_id, text=asks)
+            except:
+                pass
+    elif datetime.datetime.now().hour == 8:
+        asks = await get_client_pay2()
         for user in users:
             await bot.send_message(chat_id=user.user_id, text=asks)
     else:
@@ -26,40 +29,43 @@ async def bot_start(message: types.Message, state: FSMContext):
 @dp.channel_post_handler(lambda message: message.text in ['SendPostNotification5'], state='*')
 async def bot_start(message: types.Message, state: FSMContext):
     users = await get_users()
-    asks =  await get_client_pay2()
+    asks = await get_client_pay2()
     for user in users:
         try:
             await bot.send_message(chat_id=user.user_id, text=asks)
         except:
             pass
 
+
 @dp.message_handler(CommandStart(), state='*')
 async def bot_start(message: types.Message, state: FSMContext):
-    await message.answer(f"Assalomu alaykum, {message.from_user.first_name}👋. \nMix Info moliyaviy 💶 yordamchisiga xush kelibsiz."
-                         "\n\nBotdan foydalanish uchun maxsus 🆔 kiriting👇.")
+    await message.answer(
+        f"Assalomu alaykum, {message.from_user.first_name}👋. \nMix Info moliyaviy 💶 yordamchisiga xush kelibsiz."
+        "\n\nBotdan foydalanish uchun maxsus 🆔 kiriting👇.")
     await state.set_state("auth")
 
 
 @dp.message_handler(state='auth')
-async def get_id(message:types.Message, state:FSMContext):
+async def get_id(message: types.Message, state: FSMContext):
     if message.text != "mixinfo123":
         await message.answer("Ushbu maxsus id royxatda mavjud emas⚠️. \nQaytadan urinib ko'ring 🔄")
     else:
         await add_user(message.from_user.id)
         if await chek_user(message.from_user.id):
             markup = await admin_menu()
-            await message.answer("✅ Maxsus 🆔 to'g'ri kitildi.\n\n 👨🏻‍💼 Yordamchi sizga yordamga tayyor.", reply_markup=markup)
+            await message.answer("✅ Maxsus 🆔 to'g'ri kitildi.\n\n 👨🏻‍💼 Yordamchi sizga yordamga tayyor.",
+                                 reply_markup=markup)
             await state.set_state("get_command")
         else:
             markup = await ask_keyboard()
-            await message.answer("✅ Maxsus 🆔 to'g'ri kitildi.\n\n 👨🏻‍💼 Yordamchi sizga yordamga tayyor.", reply_markup=markup)
+            await message.answer("✅ Maxsus 🆔 to'g'ri kitildi.\n\n 👨🏻‍💼 Yordamchi sizga yordamga tayyor.",
+                                 reply_markup=markup)
             # await state.set_state("ask_money")
             await state.set_state("get_command")
 
 
-
 @dp.message_handler(state='get_command')
-async def get_id(message:types.Message, state:FSMContext):
+async def get_id(message: types.Message, state: FSMContext):
     command = message.text
     if command not in ["Eslatma qo'shish", "To'lov eslatmasi qo'shish"]:
         await message.answer("☹️ Buyruqni tushunarsiz.\nIltimos buyruqlar to'plamidan foydalaning 👇.")
@@ -70,10 +76,10 @@ async def get_id(message:types.Message, state:FSMContext):
         else:
             await message.answer("To'lov qilinishi kerak bo'lgan xizmat nomini kiritig")
             await state.set_state("payment_name")
-            
+
 
 @dp.message_handler(state='payment_name')
-async def get_id(message:types.Message, state:FSMContext):
+async def get_id(message: types.Message, state: FSMContext):
     markup = await back_keyboard()
     await message.answer("Oyning qaysi kunida eslatma eslatilsin", reply_markup=markup)
     await state.update_data(payment_name=message.text)
@@ -81,7 +87,7 @@ async def get_id(message:types.Message, state:FSMContext):
 
 
 @dp.message_handler(state='get_client')
-async def get_id(message:types.Message, state:FSMContext):
+async def get_id(message: types.Message, state: FSMContext):
     markup = await back_keyboard()
     await message.answer("👨🏻‍💼💬: Kerakli summani sonlarda kiriting👇", reply_markup=markup)
     await state.update_data(client_name=message.text)
@@ -89,7 +95,7 @@ async def get_id(message:types.Message, state:FSMContext):
 
 
 @dp.message_handler(state='payment_date')
-async def get_id(message:types.Message, state:FSMContext):
+async def get_id(message: types.Message, state: FSMContext):
     d = message.text
     if d.isnumeric():
         markup = await back_keyboard()
@@ -105,7 +111,7 @@ async def get_id(message:types.Message, state:FSMContext):
 
 
 @dp.message_handler(state='payment_amount')
-async def get_id(message:types.Message, state:FSMContext):
+async def get_id(message: types.Message, state: FSMContext):
     data = await state.get_data()
     if message.text != "⬅️ Bekor qilish":
         if message.text.isnumeric():
@@ -120,7 +126,7 @@ async def get_id(message:types.Message, state:FSMContext):
                 await message.answer("Xatolik ⚠️.\n\nQaytadan kiriting👇")
         else:
             await message.answer("😳 Summani raqamlarda kiriting.")
-            
+
     else:
         markup = await admin_menu()
         await message.answer("👨🏻‍💼💬: Bekor qilindi.", reply_markup=markup)
@@ -128,7 +134,7 @@ async def get_id(message:types.Message, state:FSMContext):
 
 
 @dp.message_handler(state='client_amount')
-async def get_id(message:types.Message, state:FSMContext):
+async def get_id(message: types.Message, state: FSMContext):
     data = await state.get_data()
     if message.text != "⬅️ Bekor qilish":
         if message.text.isnumeric():
@@ -145,7 +151,7 @@ async def get_id(message:types.Message, state:FSMContext):
 
 
 @dp.message_handler(state='client_date')
-async def get_id(message:types.Message, state:FSMContext):
+async def get_id(message: types.Message, state: FSMContext):
     data = await state.get_data()
     if message.text != "⬅️ Bekor qilish":
         name = data['client_name']
@@ -164,7 +170,7 @@ async def get_id(message:types.Message, state:FSMContext):
 
 
 @dp.message_handler(state='ask_money')
-async def get_id(message:types.Message, state:FSMContext):
+async def get_id(message: types.Message, state: FSMContext):
     if message.text != "💵 Avans so'rash":
         await message.answer("☹️ Buyruqni tushunarsiz.\nIltimos buyruqlar to'plamidan foydalaning 👇.")
     else:
@@ -174,7 +180,7 @@ async def get_id(message:types.Message, state:FSMContext):
 
 
 @dp.message_handler(state='get_name')
-async def get_id(message:types.Message, state:FSMContext):
+async def get_id(message: types.Message, state: FSMContext):
     if message.text != "⬅️ Bekor qilish":
         await message.answer("Sizga zarur bo'lgan 💲 summani kiriting 👇.")
         await state.update_data(name=message.text)
@@ -186,7 +192,7 @@ async def get_id(message:types.Message, state:FSMContext):
 
 
 @dp.message_handler(state='amount_money')
-async def get_id(message:types.Message, state:FSMContext):
+async def get_id(message: types.Message, state: FSMContext):
     summa = message.text
     data = await state.get_data()
     if summa.isnumeric():
@@ -200,4 +206,3 @@ async def get_id(message:types.Message, state:FSMContext):
         await message.answer("👨🏻‍💼💬: Avans so'rovi jo'natildi", reply_markup=markup)
     else:
         await message.answer("😳 Summani raqamlarda kiriting.")
-    
