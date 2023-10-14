@@ -11,17 +11,18 @@ import datetime
 @dp.channel_post_handler(lambda message: message.text in ['SendPostNotification'], state='*')
 async def bot_start(message: types.Message, state: FSMContext):
     users = await get_users()
-    if datetime.datetime.now().hour == 20:
+    if datetime.datetime.now().hour == 17:
         asks = await get_client_pay()
+        asks_tomorrow = await get_client_pay2()
         for user in users:
             try:
-                await bot.send_message(chat_id=user.user_id, text=asks)
+                await bot.send_message(chat_id=user.user_id, text=f'{asks}\n\n{asks_tomorrow}')
             except:
                 pass
-    elif datetime.datetime.now().hour == 8:
-        asks = await get_client_pay2()
-        for user in users:
-            await bot.send_message(chat_id=user.user_id, text=asks)
+    # elif datetime.datetime.now().hour == 17:
+    #     asks = await get_client_pay2()
+    #     for user in users:
+    #         await bot.send_message(chat_id=user.user_id, text=asks)
     else:
         pass
 
