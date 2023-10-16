@@ -11,7 +11,7 @@ import datetime
 @dp.channel_post_handler(lambda message: message.text in ['SendPostNotification'], state='*')
 async def bot_start(message: types.Message, state: FSMContext):
     users = await get_users()
-    if datetime.datetime.now().hour == 17:
+    if datetime.datetime.now().hour == 5:
         asks = await get_client_pay()
         asks_tomorrow = await get_client_pay2()
         for user in users:
